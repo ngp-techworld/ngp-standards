@@ -1,0 +1,12 @@
+{
+  "name": "ngp",
+  "description": "NGP TechWorld internal plugins.",
+  "owner": { "name": "NGP TechWorld" },
+  "plugins": [
+    {
+      "name": "ngp-standards",
+      "source": "./",
+      "description": "NGP TechWorld company coding standards per stack."
+    }
+  ]
+}
