@@ -5,10 +5,11 @@ description: NGP TechWorld standard for Flutter mobile apps built on GetX (state
 
 # NGP Flutter Standard (GetX)
 
-> v0.2 (approved architecture). Also follow `ngp-general`.
-> **Reference repo:** https://github.com/NGPTechWorld/ngp_flutter_clean_architectuer
-> Every new app starts from that template. When this file and the template disagree, the
-> template's `ARCHITECTURE.md` wins and this file gets fixed.
+> v0.2.1 (approved architecture). Also follow `ngp-general`.
+> **Starter repo:** https://github.com/ngp-techworld/ngp_flutter_template (built from
+> `NGPTechWorld/ngp_flutter_clean_architectuer`). Every new app starts from it ("Use this
+> template"). When this file and the template disagree, the template's `ARCHITECTURE.md` wins and
+> this file gets fixed.
 
 ## 1. Stack
 
@@ -17,10 +18,12 @@ description: NGP TechWorld standard for Flutter mobile apps built on GetX (state
 | SDK | Flutter pinned with **fvm** (`.fvmrc`, currently 3.44.2). Always run `fvm flutter ...` / `fvm dart ...`. |
 | State + DI + navigation | **GetX** (`get`): `GetxController`, `Rx`/`Obx`, `Bindings`, `GetPage`, `Get.toNamed` |
 | HTTP | `dio` wrapped in `ApiService` (+ `pretty_dio_logger` in debug only) |
-| Key/value cache | `CacheService` contract; default implementation `GetStorageHelper` (`get_storage`). Tokens in `flutter_secure_storage`. |
+| Key/value cache | `CacheService` contract; default implementation `SecureTokenCache`: tokens in `flutter_secure_storage`, everything else in `get_storage`. |
 | Local database | `hive_ce` (+ `hive_ce_generator`), only when the app needs offline data |
 | Connectivity | `connectivity_plus` through `NetworkInfo` |
 | Notifications | `flutter_local_notifications` through `NotificationService` |
+| Push (optional) | `firebase_messaging` through `FcmService` + `NotificationRouter`; skipped until the Firebase config files are added |
+| Realtime (optional) | `socket_io_client` through `SocketService`, connects on first use |
 | Translations | GetX translations loaded from `assets/lang/ar.json`, `en.json` |
 | Assets | generated typed access (`assets.gen.dart`, `fonts.gen.dart`); SVG via `flutter_svg` |
 | Lint | `flutter_lints` + rules in §9 |
@@ -59,14 +62,17 @@ lib/
 │   │   ├── cache/            CacheService (contract) + implementations + cache_keys.dart
 │   │   ├── connection/       NetworkInfo
 │   │   ├── errors/           ErrorHandler, NetworkFailureModel, Failure / Exception
-│   │   ├── notifications/    NotificationService
-│   │   └── params/           request params / bodies
+│   │   ├── notifications/    NotificationService (local) + FcmService + NotificationRouter
+│   │   ├── params/           request params / bodies
+│   │   ├── settings/         AppSettingsService (font scale)
+│   │   └── socket/           SocketService (Socket.IO)
 │   ├── themes/               ThemeManager
 │   ├── translations/         AppTranslations (files in assets/lang)
 │   └── utils/
 │       ├── color_manager.dart, values_manager.dart (AppSize, AppPadding, FontSize), string_manager.dart
 │       ├── *.gen.dart        (generated) typed assets and fonts
-│       ├── helper/           extensions, small helper functions
+│       ├── directional_icons.dart  back/forward icons that flip in RTL
+│       ├── helper/           extensions, url_helper (absoluteUrl), jwt, date_helper
 │       └── widgets/          app-wide UI kit: buttons, text fields, toasts, app bars...
 ├── data/
 │   ├── dto/                  shape of API data (fromMap / toMap)
@@ -88,8 +94,8 @@ feature go in `features/<name>/widgets/`.
 
 ```text
 main()
- ├─ AppBinding().dependencies()   register CacheService and ApiService (Get.put)
- ├─ AppBinding.init()             GetStorage, translations, Hive, notifications
+ ├─ AppBinding().dependencies()   Get.put: CacheService, AppSettingsService, ApiService, SocketService
+ ├─ AppBinding.init()             cache, settings, translations, Hive, notifications, FCM
  └─ runApp(MyApp)                 GetMaterialApp → /splash → /home
 ```
 
@@ -109,7 +115,7 @@ Page ──(Obx)──▶ Controller ──▶ Repository ──▶ ApiService (
 | **Page** (`StatelessWidget`) | Shows state with `Obx`, forwards taps to the controller. | Logic, API calls, `if` business rules. |
 | **Controller** (`GetxController`) | Holds reactive state (`Rx`), screen logic, calls repositories, navigates, shows toasts. | Calls `ApiService` or Dio directly; parses JSON. |
 | **Repository** | The **only** code that talks to `ApiService` / cache / Hive. Maps DTOs, **always returns `AppResponse<T>`** instead of throwing. | Touches widgets or Rx UI state. |
-| **ErrorHandler** | `ErrorHandler.handle(e).failure` turns any error into a `NetworkFailureModel` inside `AppResponse`. | |
+| **ErrorHandler** | `ErrorHandler.handle(e).failure` turns any error into a `NetworkFailureModel` inside `AppResponse` (see §12). | |
 
 ### Repository (abstract + Imp)
 
@@ -266,20 +272,23 @@ linter:
   `ApiService`, check `AppResponse.success` and the failure path).
 - Unit-test controllers by registering a fake repository with `Get.put<OrdersRepository>(FakeOrdersRepository())`
   and calling `Get.reset()` in `tearDown`.
-- `test/` mirrors `lib/`.
+- `test/` mirrors `lib/`. Test files import app code as `package:<app_name>/...`.
 
-## 12. Known gaps in the template (to fix in the reference repo, not per project)
+## 12. Auth, errors and pagination (built into the template)
 
-- The auth interceptor is commented out: a 401 should clear the token and route to login in one
-  place.
-- `ApiService.request` replaces the headers map when `requiredToken` is true and drops `Accept`;
-  build headers once and add `Authorization` on top.
-- The error parser should read our Laravel error shape `{message, code, errors}` (see
-  `ngp-laravel` §5) and keep `code` in `NetworkFailureModel`.
-- `PaginatedModel.fromJson` expects a `pagination` object; align it with Laravel's
-  `data` / `meta` pagination (or have the API send the shape the app expects; decide once).
-- The token is read via `CacheService` (GetStorage); store it in secure storage instead.
-- Add `analysis_options` rules from §9 and a CI workflow.
+- `ApiService.request` adds `Authorization: Bearer <token>` on top of the default headers, so
+  `Accept: application/json` is always sent.
+- A 401 triggers **one** shared token refresh (`EndPoints.refresh`: `{refreshToken}` in,
+  `{accessToken, refreshToken?}` out) and replays the request. With no refresh token (plain Sanctum
+  tokens) or a failed refresh, the session is cleared in one place and the app goes back to the
+  start route. Point `_onSessionExpired` at the app's login route.
+- Tokens live in secure storage through `SecureTokenCache` (`kUserToken`, `kRefreshToken`).
+  Never write a credential to GetStorage.
+- Errors follow the API shape `{message, code, errors}` (`ngp-laravel` §5). On
+  `NetworkFailureModel`: `code` is the HTTP status, `errorCode` is the API `code` to switch on,
+  `errors` holds the 422 field errors, `message` is already translated: show it as is.
+- `PaginatedModel.fromJson` reads Laravel's `data` + `meta` (`current_page`, `last_page`,
+  `per_page`, `total`). Send `?page=` and read `totalPages` to know when to stop.
 
 ## 13. Before opening a PR
 
