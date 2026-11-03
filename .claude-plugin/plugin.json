@@ -1,6 +1,6 @@
 {
   "name": "ngp-standards",
   "description": "NGP TechWorld company coding standards: general rules plus Laravel, React/Vite, Next.js and Flutter.",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "author": { "name": "NGP TechWorld" }
 }
