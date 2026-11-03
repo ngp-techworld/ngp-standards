@@ -65,9 +65,11 @@ Copy-Item -Recurse -Force ".\ngp-standards\skills\*" "$env:USERPROFILE\.claude\s
 بس ترفع محتوى الملف المضغوط على ريبو `ngp-techworld/ngp-standards`، كل مبرمج بيكتب جوّا Claude Code:
 
 ```
-/plugin marketplace add ngp-techworld/ngp-standards
+/plugin marketplace add https://github.com/ngp-techworld/ngp-standards.git
 /plugin install ngp-standards@ngp
 ```
+
+(الصيغة المختصرة `ngp-techworld/ngp-standards` بتعمل clone بالـ SSH، وبتفشل إذا ما عندك مفتاح SSH على GitHub. رابط الـ HTTPS بيمشي مع الكل.)
 
 ولما تتعدّل المعايير، كل واحد بيعمل:
 ```

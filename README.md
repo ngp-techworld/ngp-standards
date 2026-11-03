@@ -25,10 +25,10 @@ The skill for a stack describes the rules; the starter repo shows them in workin
 
 | Stack | Starter repo | Status |
 |---|---|---|
-| Flutter | `ngp-techworld/ngp_flutter_template` (from `NGPTechWorld/ngp_flutter_clean_architectuer`) | to copy |
-| Laravel API | `ngp-techworld/ngp_laravel_api_template` | to build |
-| React + Vite | `ngp-techworld/ngp_react_vite_template` | to build |
-| Next.js | `ngp-techworld/ngp_nextjs_template` | to build |
+| Flutter | [`ngp-techworld/ngp_flutter_template`](https://github.com/ngp-techworld/ngp_flutter_template) (from `NGPTechWorld/ngp_flutter_clean_architectuer`) | ready |
+| Laravel API | [`ngp-techworld/ngp_laravel_api_template`](https://github.com/ngp-techworld/ngp_laravel_api_template) | ready |
+| React + Vite | [`ngp-techworld/ngp_react_vite_template`](https://github.com/ngp-techworld/ngp_react_vite_template) | ready |
+| Next.js | [`ngp-techworld/ngp_nextjs_template`](https://github.com/ngp-techworld/ngp_nextjs_template) | ready |
 
 Each starter repo contains: a working example feature end-to-end (e.g. login + one list
 screen), the folder layout from the skill, lint/format/test config, `ci.yml`, `.env.example`,
@@ -46,13 +46,16 @@ that follows the same rules as the team. One file, two readers, no copy drifting
 
 **People:** read `ngp-general` once, then the file for the stack you work on.
 
-**Claude Code (whole team, recommended):** this folder is a Claude Code plugin. Push it to a repo
-(`ngp-techworld/ngp-standards`), then each developer runs once:
+**Claude Code (whole team, recommended):** this repo is a Claude Code plugin. Each developer runs
+once:
 
 ```
-/plugin marketplace add ngp-techworld/ngp-standards
+/plugin marketplace add https://github.com/ngp-techworld/ngp-standards.git
 /plugin install ngp-standards@ngp
 ```
+
+The short form `ngp-techworld/ngp-standards` clones over SSH and fails without a GitHub SSH key;
+the HTTPS URL works for everyone.
 
 Updates to the standards then reach everyone with `/plugin marketplace update ngp`.
 
