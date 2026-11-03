@@ -21,7 +21,7 @@ description: NGP TechWorld standard for React single-page apps built with Vite, 
 | Client state | React state + context. Zustand only for real cross-page client state (cart, wizard). | No Redux. |
 | Forms | react-hook-form + zod + `@hookform/resolvers` | |
 | HTTP | Native `fetch` wrapper in `src/shared/api/client.ts` | No axios in new projects. |
-| API types | `openapi-typescript` generated from the backend's Scramble OpenAPI | |
+| API types | `openapi-typescript` generated from the backend's Scramble OpenAPI | It needs TypeScript 5 as a peer; with TypeScript 7 run it through a pinned `npx --yes openapi-typescript@x.y.z` in `api:types` instead of a devDependency. Commit the generated `schema.d.ts`. |
 | i18n | i18next + react-i18next ⏳ | Not a custom i18n module. |
 | Icons | lucide-react | |
 | Accessible primitives | Radix UI (dialog, popover, tabs...) wrapped in our own `shared/ui` | No full UI kit (MUI, Ant). |
@@ -181,7 +181,9 @@ export function useCancelBooking() {
 ## 10. Testing
 
 - Vitest + Testing Library for components with logic, hooks and `shared/lib` helpers.
-- MSW for API mocking in tests (not a hand-made mock mode inside the app).
+- MSW for API mocking in tests (not a hand-made mock mode inside the app). MSW 3: import `http`
+  and `HttpResponse` from `msw`, and start with `server.listen({ onUnhandledFrame: 'error' })`
+  (renamed from `onUnhandledRequest`).
 - Test what the user sees (`getByRole`, `getByText`), not implementation details.
 - Playwright for the 3-5 critical flows (login, main purchase/booking flow, admin approval);
   run in CI.
