@@ -21,7 +21,7 @@ description: NGP TechWorld standard for Laravel/PHP backends (JSON REST APIs wit
 | Roles | `spatie/laravel-permission` ⏳ | Once a product has more than "admin + user". |
 | API docs | `dedoc/scramble` (OpenAPI) | Frontends generate their types from it. |
 | Tests | Pest 4+ | Not raw PHPUnit classes. |
-| Format | Laravel Pint, committed `pint.json` | |
+| Format | Laravel Pint, committed `pint.json`: `{"preset": "laravel", "rules": {"declare_strict_types": true, "final_class": true}}` | |
 | Static analysis | Larastan, level 6 to start, raise over time | |
 | Admin UI | Our React dashboard. No Filament in new projects. | |
 
@@ -162,12 +162,15 @@ final class CreateBooking
   covered by a test that proves tenant A cannot read tenant B (digital-menu pattern).
 - Seeders: `DatabaseSeeder` creates only what local dev needs. Demo data in separate seeders.
   Never seed a fixed admin password for production; use an artisan command
-  (`php artisan <product>:create-admin`).
+  (`php artisan <product>:create-user --admin`, which asks for the password).
 
 ## 7. Auth & authorization
 
 - Web apps on our own domain: Sanctum **SPA cookie** auth (`statefulApi()`, CSRF cookie).
 - Mobile apps and third parties: Sanctum **tokens** with abilities and an expiry.
+- `SANCTUM_STATEFUL_DOMAINS` lists only the SPA origins. Never list bearer-token clients (a
+  Next.js server, mobile apps); Sanctum's default list includes `localhost:3000`, so set the
+  variable explicitly.
 - Every protected action is checked by a **Policy** (`authorize()` in the FormRequest or
   `Gate::authorize` in the action). No role `if`s scattered in controllers.
 - Roles as an enum (`UserRole`), permissions via spatie when needed.
@@ -199,8 +202,9 @@ final class CreateBooking
   skeleton scripts that don't apply (e.g. `npm run build` in an API with no assets).
 - Delete unused skeleton front-end assets (`resources/js`, Vite, Tailwind) in pure API projects,
   unless Blade emails need them.
-- Laravel Boost may be installed; its generated `AGENTS.md`/`CLAUDE.md` must also point to these
-  NGP skills.
+- Replace the skeleton's `AGENTS.md`/`CLAUDE.md` (Laravel 13 ships a Boost bootstrap one) with
+  the NGP `CLAUDE.md` from `templates/`. If Boost is installed, its generated files must also
+  point to these NGP skills.
 
 ## 11. Checklist before opening a PR
 
