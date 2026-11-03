@@ -29,6 +29,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: shivammathur/setup-php@v2
         with: { php-version: '8.4', extensions: pdo_pgsql, coverage: none }
+        env: { update: true }
       - run: composer install --no-interaction --prefer-dist
       - run: composer audit
       - run: vendor/bin/pint --test
@@ -42,7 +43,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
-        with: { node-version: '24', cache: npm, cache-dependency-path: dashboard/package-lock.json }
+        with: { node-version: '24', check-latest: true, cache: npm, cache-dependency-path: dashboard/package-lock.json }
       - run: npm ci
       - run: npm audit --audit-level=high
       - run: npm run lint
