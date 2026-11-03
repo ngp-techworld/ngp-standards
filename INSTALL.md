@@ -71,6 +71,13 @@ Copy-Item -Recurse -Force ".\ngp-standards\skills\*" "$env:USERPROFILE\.claude\s
 
 (الصيغة المختصرة `ngp-techworld/ngp-standards` بتعمل clone بالـ SSH، وبتفشل إذا ما عندك مفتاح SSH على GitHub. رابط الـ HTTPS بيمشي مع الكل.)
 
+إذا طلعتلك رسالة `/plugin isn't available in this environment` (متل extension الـ VS Code)، اكتب نفس الأوامر بالـ terminal، وبعدها سكّر Claude Code وافتحو من جديد:
+
+```
+claude plugin marketplace add https://github.com/ngp-techworld/ngp-standards.git
+claude plugin install ngp-standards@ngp
+```
+
 ولما تتعدّل المعايير، كل واحد بيعمل:
 ```
 /plugin marketplace update ngp

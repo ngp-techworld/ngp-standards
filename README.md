@@ -57,6 +57,14 @@ once:
 The short form `ngp-techworld/ngp-standards` clones over SSH and fails without a GitHub SSH key;
 the HTTPS URL works for everyone.
 
+Where `/plugin` isn't available (e.g. the VS Code extension), run the same in a terminal, then
+restart Claude Code:
+
+```
+claude plugin marketplace add https://github.com/ngp-techworld/ngp-standards.git
+claude plugin install ngp-standards@ngp
+```
+
 Updates to the standards then reach everyone with `/plugin marketplace update ngp`.
 
 **Claude Code (single repo, no plugin):** copy the needed folders into the project at
