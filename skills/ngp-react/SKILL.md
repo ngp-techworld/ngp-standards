@@ -173,7 +173,9 @@ export function useCancelBooking() {
 - Read env in one file (`src/shared/config.ts`) and validate with zod at startup.
 - In dev, Vite proxies `/api`, `/sanctum`, `/storage` to the Laravel server so cookies behave
   like production (same origin).
-- `package.json` has `"engines": { "node": ">=22.22" }` ⏳ and the scripts:
+- Node 24 LTS at its latest security release: `package.json` has
+  `"engines": { "node": "^24.22.2" }` (the floor on 2026-11-03), `.npmrc` has
+  `engine-strict=true`, and CI uses `node-version: '24'`. See `ngp-general` §10. The scripts:
   `dev`, `build`, `preview`, `lint`, `format`, `typecheck`, `test`, `test:e2e`, `api:types`.
 
 ## 10. Testing

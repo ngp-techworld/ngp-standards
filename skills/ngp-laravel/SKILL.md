@@ -12,7 +12,7 @@ description: NGP TechWorld standard for Laravel/PHP backends (JSON REST APIs wit
 
 | Area | Choice | Notes |
 |---|---|---|
-| Runtime | PHP 8.4+ ⏳ | `composer.json` `"php"` must equal the production version's floor (e.g. `^8.4`). CI tests that exact version. |
+| Runtime | PHP 8.4, latest security release (8.4.27 on 2026-11-03) | `composer.json` `"php"` is that floor (`^8.4.27`), so Composer refuses vulnerable patches; production runs the same line. CI tests the latest 8.4 patch. See `ngp-general` §10. |
 | Framework | Laravel 13 | NGP website backend (Laravel 12) upgrades when next touched. |
 | Auth | Sanctum | Cookie (SPA) for our web apps on the same site; tokens for mobile apps. See §7. |
 | Database | PostgreSQL 16+ | **Everywhere**: local, tests, CI, production. No SQLite, no MySQL. |

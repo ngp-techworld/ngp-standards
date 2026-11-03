@@ -141,6 +141,10 @@ from a laptop (manual scripts are a fallback, documented in `docs/DEPLOY.md`).
 - Change all seeded/default admin passwords before go-live; never document real ones in a README.
 - Rate-limit login, OTP and any public form.
 - Run `composer audit` / `npm audit` in CI and fix high/critical issues within a week.
+- Runtimes (PHP, Node) use a supported line at a release with no known vulnerabilities. The floor
+  in `composer.json` `"php"` / `package.json` `engines` is that line's latest security release,
+  and npm enforces it (`engine-strict=true` in `.npmrc`). CI installs the latest patch of the
+  line. When a new security release comes out, raise the floor in the same week.
 - Production backups are automatic, daily, copied **off the server**, and a restore is tested
   once per month.
 
