@@ -22,7 +22,7 @@ These rules apply to **every** NGP project, whatever the language. The stack ski
 
 ## 2. Repository layout
 
-One git repository per product, under the `ngp-techworld` GitHub organization. Every project lives
+One git repository per product, under the `ngp-techworld` GitHub account. Every project lives
 in git from day one (no local-only folders).
 
 ```
